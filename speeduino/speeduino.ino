@@ -39,6 +39,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "init.h"
 #include BOARD_H //Note that this is not a real file, it is defined in globals.h. 
 
+unsigned long injectorTest_last_uS;
+unsigned long injectorTest_pulsesToGo;
+
 void setup()
 {
   initialiseAll();
@@ -131,6 +134,13 @@ void loop()
       boostDisable();
       if(configPage4.ignBypassEnabled > 0) { digitalWrite(pinIgnBypass, LOW); } //Reset the ignition bypass ready for next crank attempt
     }
+
+
+    //Injector 1 hw squirt test mode
+    if ((currentStatus.testActive) && !BIT_CHECK(currentStatus.engine, BIT_ENGINE_RUN) && !BIT_CHECK(currentStatus.engine, BIT_ENGINE_CRANK)) {
+      hwTestInjector1squirts();
+    }
+    
 
     //***Perform sensor reads***
     //-----------------------------------------------------------------------------------------------------
@@ -1400,5 +1410,27 @@ uint16_t calculateInjector5StartAngle(unsigned int PWdivTimerPerDegree)
 
   return tempInjector5StartAngle;
 }
+
+
+//Injector squirt test mode
+void hwTestInjector1squirts() {
+  if (injectorTest_pulsesToGo > 0) {
+    FUEL_PUMP_ON();
+    currentStatus.fuelPumpOn = true;
+    unsigned long nowUs = micros();
+    if ( (unsigned long) nowUs - injectorTest_last_uS > ((configPage4.hwTestInjSqrtInterval*100) + configPage4.hwTestInjSqrtPW) ) {
+      injectorTest_last_uS = nowUs;
+      setFuelSchedule1(10, (configPage4.hwTestInjSqrtPW));
+      injectorTest_pulsesToGo--;   
+    }
+  } else {
+    currentStatus.testActive = 0;
+    FUEL_PUMP_OFF();
+    currentStatus.fuelPumpOn = false;
+
+  }
+}
+
+
 
 #endif //Unit testing scope guard

@@ -702,7 +702,10 @@ struct config4 {
   byte idleAdvBins[6];
   byte idleAdvValues[6];
 
-  byte unused4_120[8];
+  uint16_t hwTestInjSqrtPW;    //Used for hw test, injector pulsewidth (uS)
+  uint16_t hwTestInjSqrtNo;    //Used for hw test, injector squirts 
+  int8_t hwTestInjSqrtInterval;//Used for hw test, injector squirt interval (ms*10)
+  byte unused2_125[3];
 
 #if defined(CORE_AVR)
   };

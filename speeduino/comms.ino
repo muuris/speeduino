@@ -531,6 +531,7 @@ void sendValues(uint16_t offset, uint16_t packetLength, byte cmd, byte portNum)
 
   //The following can be used to show the amount of free memory
   currentStatus.freeRAM = freeRam();
+  if (BIT_CHECK(currentStatus.testOutputs, 1)) { currentStatus.freeRAM = injectorTest_pulsesToGo; } //Used for injector test mode
   fullStatus[27] = lowByte(currentStatus.freeRAM); //(byte)((currentStatus.loopsPerSecond >> 8) & 0xFF);
   fullStatus[28] = highByte(currentStatus.freeRAM);
 
@@ -1891,6 +1892,21 @@ void commandButtons(int buttonCommand)
 
     case 780: // cmd group is for spark4 50%dc actions
 
+      break;
+
+
+    case 1025: // cmd group is for injector1 squirt test on
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ){
+        injectorTest_pulsesToGo = configPage4.hwTestInjSqrtNo;
+        currentStatus.testActive = 1;
+      }
+      break;
+
+    case 1026: // cmd group is for injector1 squirt test off
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ){
+        currentStatus.testActive = 0;
+        closeInjector1();
+      }
       break;
 
     default:

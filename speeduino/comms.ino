@@ -1784,8 +1784,9 @@ void commandButtons(int buttonCommand)
       closeInjector2();
       closeInjector3();
       closeInjector4();
+      injectorTest_pulsesToGo = 0;
       break;
-
+        
     case 257: // cmd is enable
       // currentStatus.testactive = 1;
       BIT_SET(currentStatus.testOutputs, 1);

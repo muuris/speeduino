@@ -688,9 +688,9 @@ struct config4 {
   byte baroFuelBins[8];
   byte baroFuelValues[8];
 
-  uint16_t hwTestInjSqrtPW;    //Used for hw test, injector pulsewidth (uS)
-  uint16_t hwTestInjSqrtNo;    //Used for hw test, injector squirts 
-  int8_t hwTestInjSqrtInterval;//Used for hw test, injector squirt interval (ms*10)
+  uint16_t hwTestInjSqrtPW;       //Used for hw test, injector pulsewidth (uS)
+  uint16_t hwTestInjSqrtNo;       //Used for hw test, injector squirts 
+  int8_t   hwTestInjSqrtInterval; //Used for hw test, injector squirt interval (ms*10)
   byte unused2_113[15];
 
 #if defined(CORE_AVR)

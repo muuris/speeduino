@@ -1415,16 +1415,24 @@ uint16_t calculateInjector5StartAngle(unsigned int PWdivTimerPerDegree)
 
 //Injector squirt test mode
 void hwTestInjector1squirts() {
+  //Check if there are pulses to go
   if (injectorTest_pulsesToGo > 0) {
-    FUEL_PUMP_ON();
-    currentStatus.fuelPumpOn = true;
+    //Secondly check that the set interval has passed since last pulse
     unsigned long nowUs = micros();
-    if (( (unsigned long) nowUs - injectorTest_last_uS > ((configPage4.hwTestInjSqrtInterval*100) + configPage4.hwTestInjSqrtPW) ) && (fuelSchedule1.Status != RUNNING) )
+    unsigned long delayUs = (unsigned long)(configPage4.hwTestInjSqrtInterval*100UL) + configPage4.hwTestInjSqrtPW;
+    if ( (unsigned long) (nowUs - injectorTest_last_uS) >= delayUs )
     {
-      injectorTest_last_uS = nowUs;
-      setFuelSchedule1(10, (configPage4.hwTestInjSqrtPW));
-      injectorTest_pulsesToGo--;   
+      //Last check that there are no scheduled pulses
+      if ( fuelSchedule1.Status == OFF && fuelSchedule1.schedulesSet == 0 && fuelSchedule1.hasNextSchedule == false)
+      {
+        //Set next schedule and it's begin time into injectorTest_last_uS
+        injectorTest_last_uS = (unsigned long) nowUs+10;
+        setFuelSchedule1(10, (unsigned long) configPage4.hwTestInjSqrtPW);
+        injectorTest_pulsesToGo--;
+      }
     }
+
+  //No more pulses to go, end test
   } else {
     currentStatus.testActive = 0;
   }

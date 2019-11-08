@@ -1896,7 +1896,7 @@ void commandButtons(int buttonCommand)
 
 
     case 1025: // cmd group is for injector1 squirt test on
-      if( BIT_CHECK(currentStatus.testOutputs, 1) ){
+      if( BIT_CHECK(currentStatus.testOutputs, 1) && (injectorTest_pulsesToGo == 0) ){
         injectorTest_pulsesToGo = configPage4.hwTestInjSqrtNo;
         currentStatus.testActive = 1;
       }
@@ -1904,7 +1904,7 @@ void commandButtons(int buttonCommand)
 
     case 1026: // cmd group is for injector1 squirt test off
       if( BIT_CHECK(currentStatus.testOutputs, 1) ){
-        currentStatus.testActive = 0;
+        currentStatus.testActive = 1;
         injectorTest_pulsesToGo = 0;
         closeInjector1();
       }
@@ -1920,7 +1920,7 @@ void commandButtons(int buttonCommand)
 
     case 1028: // cmd group is for injector1 squirt test, fuel pump off
       if( BIT_CHECK(currentStatus.testOutputs, 1) ){
-        currentStatus.testActive = 1;
+        currentStatus.testActive = 0;
         FUEL_PUMP_OFF();
         currentStatus.fuelPumpOn = false;
       }

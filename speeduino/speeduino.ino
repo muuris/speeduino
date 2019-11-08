@@ -1419,16 +1419,14 @@ void hwTestInjector1squirts() {
     FUEL_PUMP_ON();
     currentStatus.fuelPumpOn = true;
     unsigned long nowUs = micros();
-    if ( (unsigned long) nowUs - injectorTest_last_uS > ((configPage4.hwTestInjSqrtInterval*100) + configPage4.hwTestInjSqrtPW) ) {
+    if (( (unsigned long) nowUs - injectorTest_last_uS > ((configPage4.hwTestInjSqrtInterval*100) + configPage4.hwTestInjSqrtPW) ) && (fuelSchedule1.Status != RUNNING) )
+    {
       injectorTest_last_uS = nowUs;
       setFuelSchedule1(10, (configPage4.hwTestInjSqrtPW));
       injectorTest_pulsesToGo--;   
     }
   } else {
     currentStatus.testActive = 0;
-    FUEL_PUMP_OFF();
-    currentStatus.fuelPumpOn = false;
-
   }
 }
 

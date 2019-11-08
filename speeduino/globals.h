@@ -707,6 +707,7 @@ struct config4 {
   int8_t hwTestInjSqrtInterval;//Used for hw test, injector squirt interval (ms*10)
   byte unused2_125[3];
 
+  
 #if defined(CORE_AVR)
   };
 #else

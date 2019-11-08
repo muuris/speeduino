@@ -39,8 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "init.h"
 #include BOARD_H //Note that this is not a real file, it is defined in globals.h. 
 
-unsigned long injectorTest_last_uS;
-unsigned long injectorTest_pulsesToGo;
+unsigned long injectorTest_last_uS;     // Used for injector tests: last injection uS time 
+unsigned long injectorTest_pulsesToGo;  // Used for injector tests: pulses left to squirt
 
 void setup()
 {
@@ -119,7 +119,8 @@ void loop()
       ignitionCount = 0;
       ignitionOn = false;
       fuelOn = false;
-      if (fpPrimed == true) { FUEL_PUMP_OFF(); currentStatus.fuelPumpOn = false; } //Turn off the fuel pump, but only if the priming is complete
+      if ((fpPrimed == true) && !BIT_CHECK(currentStatus.testOutputs, 1)) { FUEL_PUMP_OFF(); currentStatus.fuelPumpOn = false; } //Turn off the fuel pump, but only if the priming is complete and we're not in test mode
+      
       disableIdle(); //Turn off the idle PWM
       BIT_CLEAR(currentStatus.engine, BIT_ENGINE_CRANK); //Clear cranking bit (Can otherwise get stuck 'on' even with 0 rpm)
       BIT_CLEAR(currentStatus.engine, BIT_ENGINE_WARMUP); //Same as above except for WUE

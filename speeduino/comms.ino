@@ -1905,9 +1905,29 @@ void commandButtons(int buttonCommand)
     case 1026: // cmd group is for injector1 squirt test off
       if( BIT_CHECK(currentStatus.testOutputs, 1) ){
         currentStatus.testActive = 0;
+        injectorTest_pulsesToGo = 0;
         closeInjector1();
       }
       break;
+
+    case 1027: // cmd group is for injector1 squirt test, fuel pump on
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ){
+        currentStatus.testActive = 1;
+        FUEL_PUMP_ON();
+        currentStatus.fuelPumpOn = true;
+      }
+      break;
+
+    case 1028: // cmd group is for injector1 squirt test, fuel pump off
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ){
+        currentStatus.testActive = 1;
+        FUEL_PUMP_OFF();
+        currentStatus.fuelPumpOn = false;
+      }
+      break;
+
+
+      
 
     default:
       break;

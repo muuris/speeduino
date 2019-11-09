@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include BOARD_H //Note that this is not a real file, it is defined in globals.h. 
 
 unsigned long injectorTest_pulsesToGo;  // Used for injector tests: pulses left to squirt
+unsigned long injectorTest_timeLastUs;  // Used for injector tests: last pulse uS
 
 void setup()
 {
@@ -228,7 +229,7 @@ void loop()
       readO2_2();
       readBat();
       nitrousControl();
-
+      
       if(eepromWritesPending == true) { writeAllConfig(); } //Check for any outstanding EEPROM writes.
 
       if(auxIsEnabled == true)
@@ -1420,9 +1421,14 @@ void hwTestInjector1squirts() {
     //Check that there are no scheduled pulses
     if (fuelSchedule1.Status == OFF && fuelSchedule1.schedulesSet == 0 && fuelSchedule1.hasNextSchedule == false)
     {
-      //Set next scheduled pulse and decrement counter
-      setFuelSchedule1( (unsigned long)(configPage4.hwTestInjSqrtInterval*100UL), (unsigned long) configPage4.hwTestInjSqrtPW);
-      injectorTest_pulsesToGo--;
+      //Additional uS check to avoid overlapping pulses
+      if ( (unsigned long) (micros() - injectorTest_timeLastUs) > (configPage4.hwTestInjSqrtInterval*200UL + configPage4.hwTestInjSqrtPW) )
+      {
+        //Set next scheduled pulse and decrement counter
+        setFuelSchedule1( (unsigned long)(configPage4.hwTestInjSqrtInterval*200UL), (unsigned long) configPage4.hwTestInjSqrtPW);
+        injectorTest_pulsesToGo--;
+        injectorTest_timeLastUs = micros();
+      }
     }
     
   //No more pulses to go, end test
@@ -1430,7 +1436,5 @@ void hwTestInjector1squirts() {
     currentStatus.testActive = 0;
   }
 }
-
-
 
 #endif //Unit testing scope guard

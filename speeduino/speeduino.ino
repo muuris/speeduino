@@ -39,8 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "init.h"
 #include BOARD_H //Note that this is not a real file, it is defined in globals.h. 
 
-unsigned long injectorTest_pulsesToGo;  // Used for injector tests: pulses left to squirt
-unsigned long injectorTest_timeLastUs;  // Used for injector tests: last pulse uS
 
 void setup()
 {
@@ -119,7 +117,7 @@ void loop()
       ignitionCount = 0;
       ignitionOn = false;
       fuelOn = false;
-      if ((fpPrimed == true) && !BIT_CHECK(currentStatus.testOutputs, 1)) { FUEL_PUMP_OFF(); currentStatus.fuelPumpOn = false; } //Turn off the fuel pump, but only if the priming is complete and we're not in test mode
+      if ((fpPrimed == true) && !BIT_CHECK(injectorTest_status, BIT_INJ_TEST_FUELPUMP);) { FUEL_PUMP_OFF(); currentStatus.fuelPumpOn = false; } //Turn off the fuel pump, but only if the priming is complete and we're not running it in test mode
       
       disableIdle(); //Turn off the idle PWM
       BIT_CLEAR(currentStatus.engine, BIT_ENGINE_CRANK); //Clear cranking bit (Can otherwise get stuck 'on' even with 0 rpm)
@@ -138,7 +136,7 @@ void loop()
 
 
     //Injector 1 hw squirt test mode
-    if ((currentStatus.testActive) && !BIT_CHECK(currentStatus.engine, BIT_ENGINE_RUN) && !BIT_CHECK(currentStatus.engine, BIT_ENGINE_CRANK)) {
+    if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_RUNNING) && !BIT_CHECK(currentStatus.engine, BIT_ENGINE_RUN) && !BIT_CHECK(currentStatus.engine, BIT_ENGINE_CRANK)) {
       hwTestInjector1squirts();
     }
     
@@ -1421,19 +1419,32 @@ void hwTestInjector1squirts() {
     //Check that there are no scheduled pulses
     if (fuelSchedule1.Status == OFF && fuelSchedule1.schedulesSet == 0 && fuelSchedule1.hasNextSchedule == false)
     {
-      //Additional uS check to avoid overlapping pulses
-      if ( (unsigned long) (micros() - injectorTest_timeLastUs) > (configPage4.hwTestInjSqrtInterval*200UL + configPage4.hwTestInjSqrtPW) )
+      //Additional ms check to avoid overlapping pulses
+      if ( (unsigned long) (ms_counter - injectorTest_msLastPulse) > (configPage4.hwTestInjSqrtInterval + configPage4.hwTestInjSqrtPW/1000UL) ) //PW is in uS, other in ms
       {
-        //Set next scheduled pulse and decrement counter
-        setFuelSchedule1( (unsigned long)(configPage4.hwTestInjSqrtInterval*200UL), (unsigned long) configPage4.hwTestInjSqrtPW);
+        //Set next scheduled pulses for selected outputs and decrement counter
+        if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_1)) { setFuelSchedule1( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
+        if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_2)) { setFuelSchedule2( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
+        if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_3)) { setFuelSchedule3( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
+        if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_4)) { setFuelSchedule4( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
+        if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_5)) { setFuelSchedule5( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
+        if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_6)) { setFuelSchedule6( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
+        
         injectorTest_pulsesToGo--;
-        injectorTest_timeLastUs = micros();
+        injectorTest_msLastPulse = ms_counter;
       }
     }
     
   //No more pulses to go, end test
   } else {
-    currentStatus.testActive = 0;
+    BIT_CLEAR(injectorTest_status, BIT_INJ_TEST_RUNNING);
+    closeInjector1();
+    closeInjector2();
+    closeInjector3();
+    closeInjector4();
+    closeInjector5();
+    closeInjector6();
+        
   }
 }
 

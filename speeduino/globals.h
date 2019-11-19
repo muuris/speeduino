@@ -376,7 +376,19 @@ volatile byte toothHistorySerialIndex = 0;
 int CRANK_ANGLE_MAX = 720;
 int CRANK_ANGLE_MAX_IGN = 360;
 int CRANK_ANGLE_MAX_INJ = 360; //The number of crank degrees that the system track over. 360 for wasted / timed batch and 720 for sequential
-  
+
+//Variables used for injector tests
+unsigned long injectorTest_pulsesToGo;  // Used for injector tests: pulses left to squirt
+unsigned long injectorTest_msLastPulse; // Used for injector tests: last pulse ms
+byte injectorTest_status;               // Used for injector tests: 
+#define BIT_INJ_TEST_RUNNING   0        // Test running bit
+#define BIT_INJ_TEST_FUELPUMP  1        // Fuel pump run bit
+#define BIT_INJ_TEST_INJ_1     2        // Enable inj output 1
+#define BIT_INJ_TEST_INJ_2     3        // Enable inj output 1
+#define BIT_INJ_TEST_INJ_3     4        // Enable inj output 1
+#define BIT_INJ_TEST_INJ_4     5        // Enable inj output 1
+#define BIT_INJ_TEST_INJ_5     6        // Enable inj output 1
+#define BIT_INJ_TEST_INJ_6     7        // Enable inj output 1
 
 //This needs to be here because using the config page directly can prevent burning the setting
 byte resetControl = RESET_CONTROL_DISABLED;
@@ -704,7 +716,7 @@ struct config4 {
 
   uint16_t hwTestInjSqrtPW;    //Used for hw test, injector pulsewidth (uS)
   uint16_t hwTestInjSqrtNo;    //Used for hw test, injector squirts 
-  int8_t hwTestInjSqrtInterval;//Used for hw test, injector squirt interval (ms*5)
+  int8_t hwTestInjSqrtInterval;//Used for hw test, injector squirt interval (ms)
   byte unused2_125[3];
 
   

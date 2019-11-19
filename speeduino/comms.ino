@@ -1797,6 +1797,7 @@ void commandButtons(int buttonCommand)
       closeInjector3();
       closeInjector4();
       injectorTest_pulsesToGo = 0;
+      BIT_CLEAR(injectorTest_status, BIT_INJ_TEST_FUELPUMP);
       break;
         
     case 257: // cmd is enable
@@ -1907,39 +1908,86 @@ void commandButtons(int buttonCommand)
       break;
 
 
-    case 1025: // cmd group is for injector1 squirt test on
-      if( BIT_CHECK(currentStatus.testOutputs, 1) && (injectorTest_pulsesToGo == 0) ){
+
+    case 1025: // cmd group is for injector squirt test on
+      if( BIT_CHECK(currentStatus.testOutputs, 1) && (injectorTest_pulsesToGo == 0) ) {
         injectorTest_pulsesToGo = configPage4.hwTestInjSqrtNo;
-        currentStatus.testActive = 1;
+        BIT_SET(injectorTest_status, BIT_INJ_TEST_RUNNING);
       }
       break;
 
-    case 1026: // cmd group is for injector1 squirt test off
-      if( BIT_CHECK(currentStatus.testOutputs, 1) ){
-        currentStatus.testActive = 1;
+    case 1026: // cmd group is for injector squirt test off
+      if( BIT_CHECK(injectorTest_status, BIT_INJ_TEST_RUNNING) ) {
         injectorTest_pulsesToGo = 0;
-        closeInjector1();
       }
       break;
 
-    case 1027: // cmd group is for injector1 squirt test, fuel pump on
-      if( BIT_CHECK(currentStatus.testOutputs, 1) ){
-        currentStatus.testActive = 1;
+    case 1027: // cmd group is for injector squirt test, fuel pump on
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) {
+        BIT_SET(injectorTest_status, BIT_INJ_TEST_FUELPUMP);
         FUEL_PUMP_ON();
         currentStatus.fuelPumpOn = true;
       }
       break;
 
-    case 1028: // cmd group is for injector1 squirt test, fuel pump off
-      if( BIT_CHECK(currentStatus.testOutputs, 1) ){
-        currentStatus.testActive = 0;
+    case 1028: // cmd group is for injector squirt test, fuel pump off
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) {
+        BIT_CLEAR(injectorTest_status, BIT_INJ_TEST_FUELPUMP);
         FUEL_PUMP_OFF();
         currentStatus.fuelPumpOn = false;
       }
       break;
 
 
+    case 1029: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_SET(injectorTest_status, BIT_INJ_TEST_INJ_1); }
+      break;
+
+    case 1030: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_SET(injectorTest_status, BIT_INJ_TEST_INJ_2); }
+      break;
+
+    case 1031: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_SET(injectorTest_status, BIT_INJ_TEST_INJ_3); }
+      break;
+
+    case 1032: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_SET(injectorTest_status, BIT_INJ_TEST_INJ_4); }
+      break;
+
+    case 1033: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_SET(injectorTest_status, BIT_INJ_TEST_INJ_5); }
+      break;
       
+    case 1034: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_SET(injectorTest_status, BIT_INJ_TEST_INJ_6); }
+      break;
+
+    case 1035: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_CLEAR(injectorTest_status, BIT_INJ_TEST_INJ_1); }
+      break;
+
+    case 1036: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_CLEAR(injectorTest_status, BIT_INJ_TEST_INJ_2); }
+      break;
+
+    case 1037: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_CLEAR(injectorTest_status, BIT_INJ_TEST_INJ_3); }
+      break;
+
+    case 1038: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_CLEAR(injectorTest_status, BIT_INJ_TEST_INJ_4); }
+      break;
+
+    case 1039: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_CLEAR(injectorTest_status, BIT_INJ_TEST_INJ_5); }
+      break;
+      
+    case 1040: // cmd group is for injector squirt test, select injector 1
+      if( BIT_CHECK(currentStatus.testOutputs, 1) ) { BIT_CLEAR(injectorTest_status, BIT_INJ_TEST_INJ_6); }
+      break;
+
+
 
     default:
       break;

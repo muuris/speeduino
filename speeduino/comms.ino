@@ -1796,6 +1796,8 @@ void commandButtons(int buttonCommand)
       closeInjector2();
       closeInjector3();
       closeInjector4();
+      //closeInjector5();
+      //closeInjector6();
       injectorTest_pulsesToGo = 0;
       BIT_CLEAR(injectorTest_status, BIT_INJ_TEST_FUELPUMP);
       break;

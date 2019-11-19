@@ -117,7 +117,7 @@ void loop()
       ignitionCount = 0;
       ignitionOn = false;
       fuelOn = false;
-      if ((fpPrimed == true) && !BIT_CHECK(injectorTest_status, BIT_INJ_TEST_FUELPUMP);) { FUEL_PUMP_OFF(); currentStatus.fuelPumpOn = false; } //Turn off the fuel pump, but only if the priming is complete and we're not running it in test mode
+      if ((fpPrimed == true) && !BIT_CHECK(injectorTest_status, BIT_INJ_TEST_FUELPUMP)) { FUEL_PUMP_OFF(); currentStatus.fuelPumpOn = false; } //Turn off the fuel pump, but only if the priming is complete and we're not running it in test mode
       
       disableIdle(); //Turn off the idle PWM
       BIT_CLEAR(currentStatus.engine, BIT_ENGINE_CRANK); //Clear cranking bit (Can otherwise get stuck 'on' even with 0 rpm)
@@ -137,7 +137,7 @@ void loop()
 
     //Injector 1 hw squirt test mode
     if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_RUNNING) && !BIT_CHECK(currentStatus.engine, BIT_ENGINE_RUN) && !BIT_CHECK(currentStatus.engine, BIT_ENGINE_CRANK)) {
-      hwTestInjector1squirts();
+      hwTestInjectorSquirts();
     }
     
 
@@ -1412,7 +1412,7 @@ uint16_t calculateInjector5StartAngle(unsigned int PWdivTimerPerDegree)
 
 
 //Injector squirt test mode
-void hwTestInjector1squirts() {
+void hwTestInjectorSquirts() {
   //Check if there are pulses to go
   if (injectorTest_pulsesToGo > 0)
   {
@@ -1427,8 +1427,8 @@ void hwTestInjector1squirts() {
         if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_2)) { setFuelSchedule2( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
         if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_3)) { setFuelSchedule3( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
         if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_4)) { setFuelSchedule4( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
-        if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_5)) { setFuelSchedule5( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
-        if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_6)) { setFuelSchedule6( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
+        //if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_5)) { setFuelSchedule5( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
+        //if (BIT_CHECK(injectorTest_status, BIT_INJ_TEST_INJ_6)) { setFuelSchedule6( (unsigned long)(configPage4.hwTestInjSqrtInterval*1000UL), (unsigned long) configPage4.hwTestInjSqrtPW); }
         
         injectorTest_pulsesToGo--;
         injectorTest_msLastPulse = ms_counter;
@@ -1438,12 +1438,6 @@ void hwTestInjector1squirts() {
   //No more pulses to go, end test
   } else {
     BIT_CLEAR(injectorTest_status, BIT_INJ_TEST_RUNNING);
-    closeInjector1();
-    closeInjector2();
-    closeInjector3();
-    closeInjector4();
-    closeInjector5();
-    closeInjector6();
         
   }
 }

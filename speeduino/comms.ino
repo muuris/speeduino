@@ -531,7 +531,6 @@ void sendValues(uint16_t offset, uint16_t packetLength, byte cmd, byte portNum)
 
   //The following can be used to show the amount of free memory
   currentStatus.freeRAM = freeRam();
-  if (BIT_CHECK(currentStatus.testOutputs, 1)) { currentStatus.freeRAM = injectorTest_pulsesToGo; } //Used for injector test mode
   fullStatus[27] = lowByte(currentStatus.freeRAM); //(byte)((currentStatus.loopsPerSecond >> 8) & 0xFF);
   fullStatus[28] = highByte(currentStatus.freeRAM);
 
@@ -615,6 +614,8 @@ void sendValues(uint16_t offset, uint16_t packetLength, byte cmd, byte portNum)
   fullStatus[96] = lowByte(currentStatus.flexBoostCorrection);
   fullStatus[97] = highByte(currentStatus.flexBoostCorrection);
   fullStatus[98] = currentStatus.baroCorrection;
+  fullStatus[99] = lowByte(injectorTest_pulsesToGo);
+  fullStatus[100] = highByte(injectorTest_pulsesToGo);
 
   for(byte x=0; x<packetLength; x++)
   {

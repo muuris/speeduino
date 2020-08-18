@@ -478,24 +478,29 @@ void loop()
       if ( (BIT_CHECK(currentStatus.engine, BIT_ENGINE_RUN)) && (predictedMAPenabled) && ((currentStatus.tpsDOT > configPage2.taeThresh)) )
       {
         //Check if MAP predict function is running, start if it is not
-        if (!MAPpredictRunning)
+        if (!MAPpredictRunning && ((unsigned long) MAPpredictStart == 0) )
         {
           MAPpredictRunning = true;
           MAPpredictStart = RunSecsX100;
           //lookup table value
 
           //if table value is greater than measured map value, use that
-
-        //If MAP predict is already running, taper it down to measured value
-        } else
-        {
-          //lookup table value
-          //if table value is greater than measured value, taper the looked up value to measured value
-           
         }
-        
       }
-
+      
+      //If MAP predict is already running, taper it down to measured value
+      if (MAPpredictRunning)
+      {
+          //if taper time is elapsed, reset map predict and break
+          //if not, lookup table value
+          //if table value is greater than measured value, taper the looked up value to measured value          
+      }
+      
+      //MAPpredictStart is also used to prevent this functionality triggering multiple times before throttle is actually released
+      if (((unsigned long) MAPpredictStart > 0) && (currentStatus.tpsDOT == 0 ) )
+      {
+        MAPpredictStart = 0;
+      }
 
       //Begin the fuel calculation
       //Calculate an injector pulsewidth from the VE

@@ -23,6 +23,7 @@
 #define fuelMap2Page 11
 #define wmiMapPage   12
 #define progOutsPage 13
+#define predictedMapPage 14
 
 byte currentPage = 1;//Not the same as the speeduino config page numbers
 bool isMap = true; /**< Whether or not the currentPage contains only a 3D map that would require translation */

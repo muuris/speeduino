@@ -36,6 +36,7 @@ void initialiseAll()
     table3D_setSize(&trim2Table, 6);
     table3D_setSize(&trim3Table, 6);
     table3D_setSize(&trim4Table, 6);
+    table3D_setSize(&predictedMapTable, 6);
 
     #if defined(CORE_STM32)
     configPage9.intcan_available = 1;   // device has internal canbus

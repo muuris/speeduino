@@ -981,6 +981,7 @@ void receiveValue(uint16_t valueOffset, byte newValue)
       trim4Table.cacheIsValid = false; //Invalid the tables cache to ensure a lookup of new values
       break;
 
+
     case canbusPage:
       pnt_configPage = &configPage9;
       //For some reason, TunerStudio is sending offsets greater than the maximum page size. I'm not sure if it's their bug or mine, but the fix is to only update the config page if the offset is less than the maximum size
@@ -1048,6 +1049,14 @@ void receiveValue(uint16_t valueOffset, byte newValue)
       {
         *((byte *)pnt_configPage + (byte)valueOffset) = newValue;
       }
+      break;
+
+    case predictedMapPage:
+      //Predicted MAP table
+      if (valueOffset < 36) { predictedMapTable.values[5 - (valueOffset / 6)][valueOffset % 6] = newValue; }
+      else if (valueOffset < 42) { predictedMapTable.axisX[(valueOffset - 36)] = int(newValue) * TABLE_RPM_MULTIPLIER; } //New value is on the X (RPM) axis of the trim1 table. The RPM values sent by TunerStudio are divided by 100, need to multiply it back by 100 to make it correct (TABLE_RPM_MULTIPLIER)
+      else if (valueOffset < 48) { predictedMapTable.axisY[(5 - (valueOffset - 42))] = int(newValue) * TABLE_LOAD_MULTIPLIER; } //New value is on the Y (TPS) axis of the boost table
+      predictedMapTable.cacheIsValid = false; //Invalid the tables cache to ensure a lookup of new values
       break;
 
     default:
@@ -1169,6 +1178,16 @@ void sendPage()
       
     case progOutsPage:
       pnt_configPage = &configPage13; //Create a pointer to Page 13 in memory
+      break;
+
+    case predictedMapPage:
+      //Predicted MAP page
+      byte response[48]; //Bit hacky, but the size is: (6x6 + 6 + 6) * 4 = 192
+      for (int x = 0; x < 36; x++) { response[x] = predictedMapTable.values[5 - (x / 6)][x % 6]; }
+      for (int x = 36; x < 42; x++) { response[x] = byte(predictedMapTable.axisX[(x - 36)] / TABLE_RPM_MULTIPLIER); }
+      for (int y = 42; y < 48; y++) { response[y] = byte(predictedMapTable.axisY[5 - (y - 42)] / TABLE_LOAD_MULTIPLIER); }
+      Serial.write((byte *)&response, sizeof(response));
+      sendComplete = true;
       break;
 
     default:

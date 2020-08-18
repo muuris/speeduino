@@ -352,6 +352,7 @@ extern struct table3D trim1Table; //6x6 Fuel trim 1 map
 extern struct table3D trim2Table; //6x6 Fuel trim 2 map
 extern struct table3D trim3Table; //6x6 Fuel trim 3 map
 extern struct table3D trim4Table; //6x6 Fuel trim 4 map
+extern struct table3D predictedMapTable; //6x6 Predicted MAP (for AE) map
 extern struct table2D taeTable; //4 bin TPS Acceleration Enrichment map (2D)
 extern struct table2D maeTable;
 extern struct table2D WUETable; //10 bin Warm Up Enrichment map (2D)
@@ -760,7 +761,11 @@ struct config2 {
   uint16_t vssRatio5;
   uint16_t vssRatio6;
 
-  byte unused2_95[9];
+  byte unused2_118_bits : 7;
+  byte predictedMAPenabled : 1; //Enable/disable predicted MAP feature for intial AE
+  byte predictedMAPtaper;       //Predicted MAP taper length (secsX100)
+  
+  byte unused2_120[7];
   byte primingDelay;
 
 #if defined(CORE_AVR)

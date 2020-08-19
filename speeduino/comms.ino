@@ -628,6 +628,7 @@ void updateFullStatus()
   fullStatus[111] = currentStatus.outputsStatus;
   fullStatus[112] = (byte)(currentStatus.fuelTemp + CALIBRATION_TEMPERATURE_OFFSET); //Fuel temperature from flex sensor
   fullStatus[113] = currentStatus.fuelTempCorrection; //Fuel temperature Correction (%)
+  fullStatus[114] = currentStatus.MAPpredictActive;
 }
 /*
 This function returns the current values of a fixed group of variables
@@ -1055,7 +1056,7 @@ void receiveValue(uint16_t valueOffset, byte newValue)
       //Predicted MAP table
       if (valueOffset < 36) { predictedMapTable.values[5 - (valueOffset / 6)][valueOffset % 6] = newValue; }
       else if (valueOffset < 42) { predictedMapTable.axisX[(valueOffset - 36)] = int(newValue) * TABLE_RPM_MULTIPLIER; } //New value is on the X (RPM) axis of the trim1 table. The RPM values sent by TunerStudio are divided by 100, need to multiply it back by 100 to make it correct (TABLE_RPM_MULTIPLIER)
-      else if (valueOffset < 48) { predictedMapTable.axisY[(5 - (valueOffset - 42))] = int(newValue) * TABLE_LOAD_MULTIPLIER; } //New value is on the Y (TPS) axis of the boost table
+      else if (valueOffset < 48) { predictedMapTable.axisY[(5 - (valueOffset - 42))] = int(newValue) * TABLE_LOAD_MULTIPLIER; } //New value is on the Y (TPS) axis of the table
       predictedMapTable.cacheIsValid = false; //Invalid the tables cache to ensure a lookup of new values
       break;
 
@@ -1182,7 +1183,7 @@ void sendPage()
 
     case predictedMapPage:
       //Predicted MAP page
-      byte response[48]; //Bit hacky, but the size is: (6x6 + 6 + 6) * 4 = 192
+      byte response[48]; //Bit hacky, but the size is: 6x6 + 6 + 6 = 48
       for (int x = 0; x < 36; x++) { response[x] = predictedMapTable.values[5 - (x / 6)][x % 6]; }
       for (int x = 36; x < 42; x++) { response[x] = byte(predictedMapTable.axisX[(x - 36)] / TABLE_RPM_MULTIPLIER); }
       for (int y = 42; y < 48; y++) { response[y] = byte(predictedMapTable.axisY[5 - (y - 42)] / TABLE_LOAD_MULTIPLIER); }
@@ -1727,6 +1728,19 @@ byte getPageValue(byte page, uint16_t valueAddress)
     case progOutsPage:
         pnt_configPage = &configPage13; //Create a pointer to Page 13 in memory
         returnValue = *((byte *)pnt_configPage + valueAddress);
+        break;
+
+    case predictedMapPage:
+        {
+          //Need to perform a translation of the values[MAP/TPS][RPM] into the TS expected format
+          if(valueAddress < 48)
+          {
+            //trim1 table
+            if(valueAddress < 36) { returnValue = predictedMapTable.values[5 - (valueAddress / 6)][valueAddress % 6]; }
+            else if(valueAddress < 42) { returnValue = byte(predictedMapTable.axisX[(valueAddress - 36)] / TABLE_RPM_MULTIPLIER); }
+            else if(valueAddress < 48) { returnValue = byte(predictedMapTable.axisY[5 - (valueAddress - 42)] / TABLE_LOAD_MULTIPLIER); }
+          }
+        }
         break;
       
     default:

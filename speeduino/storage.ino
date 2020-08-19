@@ -26,6 +26,7 @@ void writeAllConfig()
   if (eepromWritesPending == false) { writeConfig(fuelMap2Page); }
   if (eepromWritesPending == false) { writeConfig(wmiMapPage); }
   if (eepromWritesPending == false) { writeConfig(progOutsPage); }
+  if (eepromWritesPending == false) { writeConfig(predictedMapPage); }
 }
 
 
@@ -478,7 +479,7 @@ void writeConfig(byte tableNum)
       {
         if( (writeCounter > EEPROM_MAX_WRITE_BLOCK) ) { break; }
         offset = x - EEPROM_CONFIG14_MAP;
-        if(EEPROM.read(x) != (predictedMapTable.values[5-(offset/6)][offset%6]) ) { EEPROM.write(x, wmiTable.values[5-(offset/6)][offset%6]); writeCounter++; }  //Write the 6x6 map
+        if(EEPROM.read(x) != (predictedMapTable.values[5-(offset/6)][offset%6]) ) { EEPROM.write(x, predictedMapTable.values[5-(offset/6)][offset%6]); writeCounter++; }  //Write the 6x6 map
       }
       //RPM bins
       for(int x=EEPROM_CONFIG14_XBINS; x<EEPROM_CONFIG14_YBINS; x++)
@@ -765,6 +766,29 @@ void loadConfig()
   {
     *(pnt_configPage + byte(x - EEPROM_CONFIG13_START)) = EEPROM.read(x);
   }
+  //*********************************************************************************************************************************************************************************
+  // MAP predict table load
+  for(int x=EEPROM_CONFIG14_MAP; x<EEPROM_CONFIG14_XBINS; x++)
+  {
+    offset = x - EEPROM_CONFIG14_MAP;
+    predictedMapTable.values[5-(offset/6)][offset%6] = EEPROM.read(x); //Read the 6x6 map
+  }
+
+  //RPM bins
+  for(int x=EEPROM_CONFIG14_XBINS; x<EEPROM_CONFIG14_YBINS; x++)
+  {
+    offset = x - EEPROM_CONFIG14_XBINS;
+    predictedMapTable.axisX[offset] = (EEPROM.read(x) * TABLE_RPM_MULTIPLIER); //RPM bins are divided by 100 when stored. Multiply them back now
+  }
+
+  //TPS/MAP bins
+  for(int x=EEPROM_CONFIG14_YBINS; x<EEPROM_CONFIG14_END; x++)
+  {
+    offset = x - EEPROM_CONFIG14_YBINS;
+    predictedMapTable.axisY[offset] = EEPROM.read(x) * TABLE_LOAD_MULTIPLIER; //TABLE_LOAD_MULTIPLIER is NOT used for predicted MAP as it is TPS based (0-100)
+  }
+  
+  //*********************************************************************************************************************************************************************************
 
 }
 

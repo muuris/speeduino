@@ -614,6 +614,7 @@ struct statuses {
   byte vvt2TargetAngle;
   byte vvt2Duty;
   byte outputsStatus;
+  bool MAPpredictActive;
 };
 
 /**
@@ -763,9 +764,10 @@ struct config2 {
 
   byte unused2_118_bits : 7;
   byte predictedMAPenabled : 1; //Enable/disable predicted MAP feature for intial AE
-  byte predictedMAPtaper;       //Predicted MAP taper length (secsX100)
+  byte predictedMAPtaper;       //Predicted MAP taper length (secsX10)
+  byte predictedMAPtresh;      //TPSdot treshold for triggering Predicted MAP
   
-  byte unused2_120[7];
+  byte unused2_121[6];
   byte primingDelay;
 
 #if defined(CORE_AVR)

@@ -192,6 +192,19 @@ uint32_t calculateCRC32(byte pageNo)
       CRC32_val = CRC32.crc32((byte *)pnt_configPage, sizeof(configPage13) );
       break;
 
+    case predictedMapPage:
+      //NOT YET confirmed working
+      raw_value = getPageValue(predictedMapPage, 0);
+      CRC32_val = CRC32.crc32(&raw_value, 1, false);
+      for(uint16_t x=1; x< npage_size[predictedMapPage]; x++)
+      {
+        raw_value = getPageValue(predictedMapPage, x);
+        CRC32_val = CRC32.crc32_upd(&raw_value, 1, false);
+      }
+      //Do a manual reflection of the CRC32 value
+      CRC32_val = ~CRC32_val;
+      break;
+
     default:
       CRC32_val = 0;
       break;

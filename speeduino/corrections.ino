@@ -626,14 +626,14 @@ byte correctionAFRClosedLoop()
 
 
 
-
 /*
 MAP predition functionality
 On rapid throttle openings (transient condition) use TPS/RPM 6x6 3D-table to predict the actual MAP value of operating conditions
 before the measured and filtered MAP value actually reaches it. The predicted value is tapered to measured value, or in case
-the measured value is greater, it is used as-is.
+the measured value is/gets greater than the predicted one, the measured is used. This functionality should lessen the need for
+aggressive AE settings.
+The values in table should be dialed in while operating in steady state conditions.
 */
-
 void TPS_MAP_prediction()
 {
       //If the feature is disabled, set the status and exit

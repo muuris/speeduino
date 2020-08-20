@@ -1735,7 +1735,6 @@ byte getPageValue(byte page, uint16_t valueAddress)
           //Need to perform a translation of the values[MAP/TPS][RPM] into the TS expected format
           if(valueAddress < 48)
           {
-            //trim1 table
             if(valueAddress < 36) { returnValue = predictedMapTable.values[5 - (valueAddress / 6)][valueAddress % 6]; }
             else if(valueAddress < 42) { returnValue = byte(predictedMapTable.axisX[(valueAddress - 36)] / TABLE_RPM_MULTIPLIER); }
             else if(valueAddress < 48) { returnValue = byte(predictedMapTable.axisY[5 - (valueAddress - 42)] / TABLE_LOAD_MULTIPLIER); }

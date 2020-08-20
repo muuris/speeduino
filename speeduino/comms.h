@@ -54,6 +54,7 @@ const char pageTitles[] PROGMEM //This is being stored in the avr flash instead 
    "\n2nd Fuel Map\0"
    "\nWMI Map\0"
    "\nPrgm IO"
+   "\npMAP Map"
   };
 
 void command();//This is the heart of the Command Line Interpeter.  All that needed to be done was to make it human readable.

@@ -47,6 +47,7 @@ unsigned long MAPrunningValue; //Used for tracking either the total of all MAP r
 unsigned long EMAPrunningValue; //As above but for EMAP
 unsigned int MAPcount; //Number of samples taken in the current MAP cycle
 uint32_t MAPcurRev; //Tracks which revolution we're sampling on
+uint16_t MAPpredictEndTime; //MAP prediction functionality end time (uses ms_counter)
 bool auxIsEnabled;
 byte TPSlast; /**< The previous TPS reading */
 unsigned long TPS_time; //The time the TPS sample was taken
@@ -75,6 +76,7 @@ byte cltErrorCount = 0;
 static inline void instanteneousMAPReading() __attribute__((always_inline));
 static inline void readMAP() __attribute__((always_inline));
 static inline void validateMAP();
+static inline void TPS_MAP_prediction();
 void initialiseADC();
 void readTPS(bool=true); //Allows the option to override the use of the filter
 void readO2_2();
@@ -91,6 +93,7 @@ void readIAT();
 void readO2();
 void readBat();
 void readBaro();
+
 
 #if defined(ANALOG_ISR)
 volatile int AnChannel[15];

@@ -209,7 +209,6 @@ void loop()
     //***Perform sensor reads***
     //-----------------------------------------------------------------------------------------------------
     readMAP();
-    TPS_MAP_prediction();
     
     if (BIT_CHECK(LOOP_TIMER, BIT_TIMER_15HZ)) //Every 32 loops
     {

@@ -764,7 +764,7 @@ struct config2 {
 
   byte unused2_118_bits : 7;
   byte predictedMAPenabled : 1; //Enable/disable predicted MAP feature for intial AE
-  byte predictedMAPtaper;       //Predicted MAP taper length (*2 milliseconds)
+  byte predictedMAPtaper;       //Predicted MAP taper length (*5 milliseconds)
   byte predictedMAPtresh;      //TPSdot treshold for triggering Predicted MAP
   
   byte unused2_121[6];

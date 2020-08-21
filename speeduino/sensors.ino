@@ -367,6 +367,8 @@ The values in table should be dialed in while operating in steady state conditio
 */
 static inline void TPS_MAP_prediction()
 {
+      currentStatus.canin[0] = currentStatus.MAP; //dev test use
+      
       //If the feature is disabled, set the status and exit
       if ( !configPage2.predictedMAPenabled )
       {
@@ -378,12 +380,12 @@ static inline void TPS_MAP_prediction()
       if ( (currentStatus.tpsDOT > configPage2.predictedMAPtresh) && (!currentStatus.MAPpredictActive) ) 
       {
         currentStatus.MAPpredictActive = 1;      //Set MAP predict active
-        MAPpredictEndTime = (uint16_t) ms_counter + (configPage2.predictedMAPtaper*2);  //Set start time for tapering. Configuration value is in resolution of 2ms.
-      }
+        MAPpredictEndTime = (uint16_t) ms_counter + (configPage2.predictedMAPtaper *5);  //Set end time for tapering by casting ms_counter value into uint16.
+      }                                                                                  //Configuration value is multiplier of 5 ms.
       
       //If MAP predict is active, taper the predicted value down to measured value
       //unless the measured value is greater, in which case it is used as is
-      uint16_t predictedValue; //currentStatus.MAP is actually long
+      uint16_t predictedValue;
       if (currentStatus.MAPpredictActive)
       {
           //Check if taper time is elapsed and if so, reset map predict
@@ -393,9 +395,9 @@ static inline void TPS_MAP_prediction()
             return;
           }
 
-          //Predicted MAP values are stored in precision of 2 units, to allow max 511 kPa values with a byte
-          predictedValue = 2 * get3DTableValue(&predictedMapTable, currentStatus.TPS, currentStatus.RPM); //Perform lookup into predicted MAP value map for RPM vs TPS value
-          predictedValue = map((uint16_t)(MAPpredictEndTime - ms_counter), 0, (configPage2.predictedMAPtaper*2), predictedValue, currentStatus.MAP);
+          //Perform lookup into predicted MAP value map for RPM vs TPS value, and taper it to measured value
+          predictedValue = 2 * get3DTableValue(&predictedMapTable, currentStatus.TPS, currentStatus.RPM);  //MAP values are stored in precision of 2 units (max 511 kPa values with a byte)
+          predictedValue = map(((uint16_t) ms_counter), ((uint16_t) MAPpredictEndTime - (configPage2.predictedMAPtaper*5)), MAPpredictEndTime, predictedValue, currentStatus.MAP); //Taper precision is 5 ms, so multiply by 5
           
           //Finally sanity checks before modifying the measured value
           if ( (predictedValue > currentStatus.MAP) && (predictedValue > configPage2.mapMin) && (predictedValue <= configPage2.mapMax))

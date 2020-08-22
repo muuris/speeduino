@@ -473,7 +473,6 @@ void loop()
       //END SETTING STATUSES
       //-----------------------------------------------------------------------------------------------------
 
-
       //Begin the fuel calculation
       //Calculate an injector pulsewidth from the VE
       currentStatus.corrections = correctionsFuel();

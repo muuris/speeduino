@@ -367,8 +367,6 @@ The values in table should be dialed in while operating in steady state conditio
 */
 static inline void TPS_MAP_prediction()
 {
-      currentStatus.canin[0] = currentStatus.MAP; //dev test use only !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
       //If the feature is disabled, set the status and exit
       if ( !configPage2.predictedMAPenabled )
       {

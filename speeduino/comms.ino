@@ -207,7 +207,7 @@ void command()
         }
         
         // Detecting if the current page is a table/map
-        if ( (currentPage == veMapPage) || (currentPage == ignMapPage) || (currentPage == afrMapPage) || (currentPage == fuelMap2Page) || (currentPage == ignMap2Page) ) { isMap = true; }
+        if ( (currentPage == veMapPage) || (currentPage == ignMapPage) || (currentPage == afrMapPage) || (currentPage == fuelMap2Page) || (currentPage == ignMap2Page)|| (currentPage == predictedMapPage) ) { isMap = true; }
         else { isMap = false; }
         cmdPending = false;
       }
@@ -687,7 +687,7 @@ void sendValues(uint16_t offset, uint16_t packetLength, byte cmd, byte portNum)
 void sendValuesLegacy()
 {
   uint16_t temp;
-  int bytestosend = 114;
+  int bytestosend = 115;
 
   bytestosend -= Serial.write(currentStatus.secl>>8);
   bytestosend -= Serial.write(currentStatus.secl);
@@ -801,7 +801,8 @@ void sendValuesLegacy()
   temp = currentStatus.advance2 * 10;
   bytestosend -= Serial.write(temp>>8);
   bytestosend -= Serial.write(temp);
-
+  bytestosend -= Serial.write(currentStatus.MAPpredictActive);
+  
   for(int i = 0; i < bytestosend; i++)
   {
     // send dummy data to fill remote's buffer
@@ -1526,6 +1527,11 @@ void sendPageASCII()
     case ignMap2Page:
       currentTitleIndex = 149;// the index to the first char of the third string in pageTitles
       currentTable = ignitionTable2;
+      break;
+
+    case predictedMapPage:
+      currentTitleIndex = 167;// the index to the first char of the third string in pageTitles
+      currentTable = predictedMapTable;
       break;
 
     default:

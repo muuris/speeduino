@@ -58,7 +58,7 @@ const char pageTitles[] PROGMEM //This is being stored in the avr flash instead 
    "\n2nd Fuel Map\0"//130
    "\nWMI Map\0"//139
    "\nPrgm IO\0"//148
-   "\n2nd Ignition Map"
+   "\n2nd Ignition Map\0"//166
    "\nPredictedMAP Map"
   };
 

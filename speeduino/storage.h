@@ -75,10 +75,14 @@ Current layout of EEPROM data (Version 3) is as follows (All sizes are in bytes)
 | 2387  |64   | WMI Map (8x8)                       |
 | 2451  |8    | WMI Table RPM bins                  |
 | 2459  |8    | WMI Table TPS bins                  |
-| 2597  |2    | Predicted MAP Table X and Y sizes   |
-| 2599  |36   | Predicted MAP Table Map (6x6)       |
-| 2635  |6    | Predicted MAP Table RPM bins        |
-| 2641  |6    | Predicted MAP Table TPS bins        |
+| 2596  |2    | X and Y sizes for Ign table 2       |
+| 2598  |256  | Ignition 2 Map (16x16)              |
+| 2854  |16   | Ign 2 Table RPM bins                |
+| 2870  |16   | Ign 2 Table MAP/TPS bins            |
+| 2986  |2    | Predicted MAP Table X and Y sizes   |
+| 2988  |36   | Predicted MAP Table Map (6x6)       |
+| 2924  |6    | Predicted MAP Table RPM bins        |
+| 2930  |6    | Predicted MAP Table TPS bins        |
 |                                                   |
 | 2514  |44   | Table CRC32 values. Last table first|
 | 2558  |1    | Last recorded Baro value            |
@@ -173,14 +177,12 @@ Current layout of EEPROM data (Version 3) is as follows (All sizes are in bytes)
 #define EEPROM_CONFIG14_XBINS 2854
 #define EEPROM_CONFIG14_YBINS 2870
 #define EEPROM_CONFIG14_END   2886
-
-
-#define EEPROM_CONFIG14_XSIZE 2597
-#define EEPROM_CONFIG14_YSIZE 2598
-#define EEPROM_CONFIG14_MAP   2599
-#define EEPROM_CONFIG14_XBINS 2635
-#define EEPROM_CONFIG14_YBINS 2641
-#define EEPROM_CONFIG14_END   2647
+#define EEPROM_CONFIG15_XSIZE 2886
+#define EEPROM_CONFIG15_YSIZE 2887
+#define EEPROM_CONFIG15_MAP   2888
+#define EEPROM_CONFIG15_XBINS 2924
+#define EEPROM_CONFIG15_YBINS 2930
+#define EEPROM_CONFIG15_END   2936
 
 //Calibration data is stored at the end of the EEPROM (This is in case any further calibration tables are needed as they are large blocks)
 #define EEPROM_PAGE_CRC32     3686 //Size of this is 4 * <number of pages> (CRC32 = 32 bits): 3742 - (14 * 4) = 3686

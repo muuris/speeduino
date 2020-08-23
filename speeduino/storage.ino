@@ -27,6 +27,7 @@ void writeAllConfig()
   if (eepromWritesPending == false) { writeConfig(wmiMapPage); }
   if (eepromWritesPending == false) { writeConfig(progOutsPage); }
   if (eepromWritesPending == false) { writeConfig(ignMap2Page); }
+  if (eepromWritesPending == false) { writeConfig(predictedMapPage); }
 }
 
 
@@ -510,6 +511,35 @@ void writeConfig(byte tableNum)
 
       break;
 
+  case predictedMapPage:
+      if(EEPROM.read(EEPROM_CONFIG14_XSIZE) != predictedMapTable.xSize) { EEPROM.write(EEPROM_CONFIG14_XSIZE,predictedMapTable.xSize); writeCounter++; } //Write the predicted MAP Table RPM dimension size
+      if(EEPROM.read(EEPROM_CONFIG14_YSIZE) != predictedMapTable.ySize) { EEPROM.write(EEPROM_CONFIG14_YSIZE,predictedMapTable.ySize); writeCounter++; } //Write the predicted MAP Table TPS dimension size
+      for(int x=EEPROM_CONFIG14_MAP; x<EEPROM_CONFIG14_XBINS; x++)
+      {
+        if( (writeCounter > EEPROM_MAX_WRITE_BLOCK) ) { break; }
+        offset = x - EEPROM_CONFIG14_MAP;
+        if(EEPROM.read(x) != (predictedMapTable.values[5-(offset/6)][offset%6]) ) { EEPROM.write(x, predictedMapTable.values[5-(offset/6)][offset%6]); writeCounter++; }  //Write the 6x6 map
+      }
+      //RPM bins
+      for(int x=EEPROM_CONFIG14_XBINS; x<EEPROM_CONFIG14_YBINS; x++)
+      {
+        if( (writeCounter > EEPROM_MAX_WRITE_BLOCK) ) { break; }
+        offset = x - EEPROM_CONFIG14_XBINS;
+        if(EEPROM.read(x) != byte(predictedMapTable.axisX[offset]/TABLE_RPM_MULTIPLIER)) { EEPROM.write(x, byte(predictedMapTable.axisX[offset]/TABLE_RPM_MULTIPLIER)); writeCounter++; } //RPM bins are divided by 100 and converted to a byte
+      }
+      //TPS bins
+      for(int x=EEPROM_CONFIG14_YBINS; x<EEPROM_CONFIG14_END; x++)
+      {
+        if( (writeCounter > EEPROM_MAX_WRITE_BLOCK) ) { break; }
+        offset = x - EEPROM_CONFIG14_YBINS;
+        if(EEPROM.read(x) != byte(predictedMapTable.axisY[offset]/TABLE_LOAD_MULTIPLIER)) { EEPROM.write(x, byte(predictedMapTable.axisY[offset]/TABLE_LOAD_MULTIPLIER)); writeCounter++; }
+      }
+
+      if(writeCounter > EEPROM_MAX_WRITE_BLOCK) { eepromWritesPending = true; }
+      else { eepromWritesPending = false; }
+      break;
+
+
     default:
       break;
   }
@@ -775,6 +805,29 @@ void loadConfig()
   {
     *(pnt_configPage + byte(x - EEPROM_CONFIG13_START)) = EEPROM.read(x);
   }
+  //*********************************************************************************************************************************************************************************
+  // MAP predict table load
+  for(int x=EEPROM_CONFIG14_MAP; x<EEPROM_CONFIG14_XBINS; x++)
+  {
+    offset = x - EEPROM_CONFIG14_MAP;
+    predictedMapTable.values[5-(offset/6)][offset%6] = EEPROM.read(x); //Read the 6x6 map
+  }
+
+  //RPM bins
+  for(int x=EEPROM_CONFIG14_XBINS; x<EEPROM_CONFIG14_YBINS; x++)
+  {
+    offset = x - EEPROM_CONFIG14_XBINS;
+    predictedMapTable.axisX[offset] = (EEPROM.read(x) * TABLE_RPM_MULTIPLIER); //RPM bins are divided by 100 when stored. Multiply them back now
+  }
+
+  //TPS/MAP bins
+  for(int x=EEPROM_CONFIG14_YBINS; x<EEPROM_CONFIG14_END; x++)
+  {
+    offset = x - EEPROM_CONFIG14_YBINS;
+    predictedMapTable.axisY[offset] = EEPROM.read(x) * TABLE_LOAD_MULTIPLIER; //TABLE_LOAD_MULTIPLIER is NOT used for predicted MAP as it is TPS based (0-100)
+  }
+  
+  //*********************************************************************************************************************************************************************************
 
   //*********************************************************************************************************************************************************************************
   //SECOND IGNITION CONFIG PAGE (14)

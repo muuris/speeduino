@@ -179,12 +179,14 @@ static inline void instanteneousMAPReading()
 static inline void readMAP()
 {
   unsigned int tempReading;
+  boolean MapValueUpdated = false; //This is set if value is updated on this instance (used for TPS_MAP_prediction)
   //MAP Sampling system
   switch(configPage2.mapSample)
   {
     case 0:
       //Instantaneous MAP readings
       instanteneousMAPReading();
+      MapValueUpdated = true;
       break;
 
     case 1:
@@ -239,6 +241,7 @@ static inline void readMAP()
             currentStatus.mapADC = ldiv(MAPrunningValue, MAPcount).quot;
             currentStatus.MAP = fastMap10Bit(currentStatus.mapADC, configPage2.mapMin, configPage2.mapMax); //Get the current MAP value
             validateMAP();
+            MapValueUpdated = true;
 
             //If EMAP is enabled, the process is identical to the above
             if(configPage6.useEMAP == true)
@@ -291,8 +294,8 @@ static inline void readMAP()
           currentStatus.MAP = fastMap10Bit(currentStatus.mapADC, configPage2.mapMin, configPage2.mapMax); //Get the current MAP value
           MAPcurRev = currentStatus.startRevolutions; //Reset the current rev count
           MAPrunningValue = 1023; //Reset the latest value so the next reading will always be lower
-
           validateMAP();
+          MapValueUpdated = true;
         }
       }
       else { instanteneousMAPReading(); }
@@ -334,6 +337,7 @@ static inline void readMAP()
             currentStatus.mapADC = ldiv(MAPrunningValue, MAPcount).quot;
             currentStatus.MAP = fastMap10Bit(currentStatus.mapADC, configPage2.mapMin, configPage2.mapMax); //Get the current MAP value
             validateMAP();
+            MapValueUpdated = true;
           }
           else { instanteneousMAPReading(); }
 
@@ -350,7 +354,55 @@ static inline void readMAP()
     instanteneousMAPReading();
     break;
   }
+  if (MapValueUpdated) { TPS_MAP_prediction(); } //Only call MAP prediction function if the MAP value was actually updated
 }
+
+/*
+MAP predition functionality
+On rapid throttle openings (transient condition) use TPS/RPM 6x6 3D-table to predict the actual MAP value of operating conditions
+before the measured and filtered MAP value actually reaches it. The predicted value is tapered to measured value, or in case
+the measured value is/gets greater than the predicted one, the measured is used. This functionality should lessen the need for
+aggressive AE settings.
+The values in table should be dialed in while operating in steady state conditions.
+*/
+static inline void TPS_MAP_prediction()
+{
+      //If the feature is disabled, set the status and exit
+      if ( !configPage2.predictedMAPenabled )
+      {
+        currentStatus.MAPpredictActive = 0;
+        return;
+      }
+
+      //Check if TPSdot is above the set treshold but the prediction is not yet set active
+      if ( (currentStatus.tpsDOT > configPage2.predictedMAPtresh) && (!currentStatus.MAPpredictActive) ) 
+      {
+        currentStatus.MAPpredictActive = 1;      //Set MAP predict active
+        MAPpredictEndTime = (unsigned long) ms_counter + (configPage2.predictedMAPtaper *5); //Set end time for tapering (configuration value is multiplier of 5 ms)
+      }
+      
+      //If MAP predict is active, taper the predicted value down to measured value unless the measured value is greater, in which case it is used as is
+      if (currentStatus.MAPpredictActive)
+      {
+          //Check if taper time is elapsed and if so, reset map predict
+          if ((unsigned long) ms_counter >= MAPpredictEndTime)
+          {
+            currentStatus.MAPpredictActive = 0;
+            return;
+          }
+
+          //Perform lookup into predicted MAP value map for RPM vs TPS value, and taper it to measured value
+          uint16_t predictedValue = 2 * get3DTableValue(&predictedMapTable, currentStatus.TPS, currentStatus.RPM);  //MAP values are stored in precision of 2 units (max 511 kPa values with a byte)
+          predictedValue = map( MAPpredictEndTime - ms_counter, (configPage2.predictedMAPtaper*5), 0, predictedValue, currentStatus.MAP); //Taper precision is 5 ms, so multiply by 5
+          
+          //Finally sanity checks before modifying the measured value
+          if ( (predictedValue > currentStatus.MAP) && (predictedValue > configPage2.mapMin) && (predictedValue <= configPage2.mapMax))
+          {
+            currentStatus.MAP = predictedValue;
+          }
+      }
+}
+
 
 void readTPS(bool useFilter)
 {

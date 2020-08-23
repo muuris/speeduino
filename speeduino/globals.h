@@ -353,6 +353,7 @@ extern struct table3D trim1Table; //6x6 Fuel trim 1 map
 extern struct table3D trim2Table; //6x6 Fuel trim 2 map
 extern struct table3D trim3Table; //6x6 Fuel trim 3 map
 extern struct table3D trim4Table; //6x6 Fuel trim 4 map
+extern struct table3D predictedMapTable; //6x6 Predicted MAP (for AE) map
 extern struct table2D taeTable; //4 bin TPS Acceleration Enrichment map (2D)
 extern struct table2D maeTable;
 extern struct table2D WUETable; //10 bin Warm Up Enrichment map (2D)
@@ -616,6 +617,7 @@ struct statuses {
   byte vvt2TargetAngle;
   byte vvt2Duty;
   byte outputsStatus;
+  bool MAPpredictActive;
 };
 
 /**
@@ -763,7 +765,12 @@ struct config2 {
   uint16_t vssRatio5;
   uint16_t vssRatio6;
 
-  byte unused2_95[9];
+  byte unused2_118_bits : 7;
+  byte predictedMAPenabled : 1; //Enable/disable predicted MAP feature for intial AE
+  byte predictedMAPtaper;       //Predicted MAP taper length (*5 milliseconds)
+  byte predictedMAPtresh;      //TPSdot treshold for triggering Predicted MAP
+  
+  byte unused2_121[6];
   byte primingDelay;
 
 #if defined(CORE_AVR)

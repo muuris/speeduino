@@ -220,6 +220,7 @@ void loop()
     //***Perform sensor reads***
     //-----------------------------------------------------------------------------------------------------
     readMAP();
+    TPS_MAP_prediction();
     
     if (BIT_CHECK(LOOP_TIMER, BIT_TIMER_15HZ)) //Every 32 loops
     {
@@ -509,6 +510,10 @@ void loop()
       //END SETTING STATUSES
       //-----------------------------------------------------------------------------------------------------
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4ab02e5... Initially working, need to check crc
       //Begin the fuel calculation
       //Calculate an injector pulsewidth from the VE
       currentStatus.corrections = correctionsFuel();

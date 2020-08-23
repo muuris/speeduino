@@ -630,6 +630,7 @@ void updateFullStatus()
   fullStatus[113] = currentStatus.fuelTempCorrection; //Fuel temperature Correction (%)
   fullStatus[114] = currentStatus.advance1; //advance 1 (%)
   fullStatus[115] = currentStatus.advance2; //advance 2 (%)
+  fullStatus[116] = currentStatus.MAPpredictActive; //Currently uses only the first bit of fullStatus[116]
 }
 /*
 This function returns the current values of a fixed group of variables
@@ -990,6 +991,7 @@ void receiveValue(uint16_t valueOffset, byte newValue)
       trim4Table.cacheIsValid = false; //Invalid the tables cache to ensure a lookup of new values
       break;
 
+
     case canbusPage:
       pnt_configPage = &configPage9;
       //For some reason, TunerStudio is sending offsets greater than the maximum page size. I'm not sure if it's their bug or mine, but the fix is to only update the config page if the offset is less than the maximum size
@@ -1057,6 +1059,14 @@ void receiveValue(uint16_t valueOffset, byte newValue)
       {
         *((byte *)pnt_configPage + (byte)valueOffset) = newValue;
       }
+      break;
+
+    case predictedMapPage:
+      //Predicted MAP table
+      if (valueOffset < 36) { predictedMapTable.values[5 - (valueOffset / 6)][valueOffset % 6] = newValue; }
+      else if (valueOffset < 42) { predictedMapTable.axisX[(valueOffset - 36)] = int(newValue) * TABLE_RPM_MULTIPLIER; } //New value is on the X (RPM) axis of the trim1 table. The RPM values sent by TunerStudio are divided by 100, need to multiply it back by 100 to make it correct (TABLE_RPM_MULTIPLIER)
+      else if (valueOffset < 48) { predictedMapTable.axisY[(5 - (valueOffset - 42))] = int(newValue) * TABLE_LOAD_MULTIPLIER; } //New value is on the Y (TPS) axis of the table
+      predictedMapTable.cacheIsValid = false; //Invalid the tables cache to ensure a lookup of new values
       break;
 
     default:
@@ -1205,6 +1215,17 @@ void sendPage()
     
     case ignMap2Page:
       currentTable = ignitionTable2;
+      break;
+
+    case predictedMapPage:
+      //Predicted MAP page
+      currentTable = predictedMapTable;
+      //byte response[48]; //Bit hacky, but the size is: 6x6 + 6 + 6 = 48
+      //for (int x = 0; x < 36; x++) { response[x] = predictedMapTable.values[5 - (x / 6)][x % 6]; }
+      //for (int x = 36; x < 42; x++) { response[x] = byte(predictedMapTable.axisX[(x - 36)] / TABLE_RPM_MULTIPLIER); }
+      //for (int y = 42; y < 48; y++) { response[y] = byte(predictedMapTable.axisY[5 - (y - 42)] / TABLE_LOAD_MULTIPLIER); }
+      //Serial.write((byte *)&response, sizeof(response));
+      //sendComplete = true;
       break;
 
     default:
@@ -1755,6 +1776,12 @@ byte getPageValue(byte page, uint16_t valueAddress)
         if( valueAddress < 256) { returnValue = ignitionTable2.values[15 - (valueAddress / 16)][valueAddress % 16]; } //This is slightly non-intuitive, but essentially just flips the table vertically (IE top line becomes the bottom line etc). Columns are unchanged. Every 16 loops, manually call loop() to avoid potential misses
         else if(valueAddress < 272) { returnValue =  byte(ignitionTable2.axisX[(valueAddress - 256)] / TABLE_RPM_MULTIPLIER); }  //RPM Bins for VE table (Need to be dvidied by 100)
         else if (valueAddress < 288) { returnValue = byte(ignitionTable2.axisY[15 - (valueAddress - 272)] / TABLE_LOAD_MULTIPLIER); } //MAP or TPS bins for VE table
+        break;
+        
+    case predictedMapPage:
+        if(valueAddress < 36) { returnValue = predictedMapTable.values[5 - (valueAddress / 6)][valueAddress % 6]; }
+        else if(valueAddress < 42) { returnValue = byte(predictedMapTable.axisX[(valueAddress - 36)] / TABLE_RPM_MULTIPLIER); }
+        else if(valueAddress < 48) { returnValue = byte(predictedMapTable.axisY[5 - (valueAddress - 42)] / TABLE_LOAD_MULTIPLIER); }
         break;
       
     default:

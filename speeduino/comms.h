@@ -24,6 +24,7 @@
 #define wmiMapPage   12
 #define progOutsPage 13
 #define ignMap2Page  14
+#define predictedMapPage 15
 
 byte currentPage = 1;//Not the same as the speeduino config page numbers
 bool isMap = true; /**< Whether or not the currentPage contains only a 3D map that would require translation */
@@ -58,6 +59,7 @@ const char pageTitles[] PROGMEM //This is being stored in the avr flash instead 
    "\nWMI Map\0"//139
    "\nPrgm IO\0"//148
    "\n2nd Ignition Map"
+   "\nPredictedMAP Map"
   };
 
 void command();//This is the heart of the Command Line Interpeter.  All that needed to be done was to make it human readable.

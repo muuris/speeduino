@@ -31,6 +31,7 @@ int16_t knockWindowMin; //The current minimum crank angle for a knock pulse to b
 int16_t knockWindowMax;//The current maximum crank angle for a knock pulse to be valid
 uint16_t aseTaperStart;
 uint16_t dfcoStart;
+uint16_t MAPpredictStart;
 
 void initialiseCorrections()
 {
@@ -620,6 +621,59 @@ byte correctionAFRClosedLoop()
   } //egoType
 
   return AFRValue; //Catch all (Includes when AFR target = current AFR
+}
+
+
+
+
+/*
+MAP predition functionality
+On rapid throttle openings (transient condition) use TPS/RPM 6x6 3D-table to predict the actual MAP value of operating conditions
+before the measured and filtered MAP value actually reaches it. The predicted value is tapered to measured value, or in case
+the measured value is/gets greater than the predicted one, the measured is used. This functionality should lessen the need for
+aggressive AE settings.
+The values in table should be dialed in while operating in steady state conditions.
+*/
+void TPS_MAP_prediction()
+{
+      //If the feature is disabled, set the status and exit
+      if ( !configPage2.predictedMAPenabled )
+      {
+        currentStatus.MAPpredictActive = 0;
+        return;
+      }
+
+      //Check if TPSdot is above the set treshold but the prediction is not yet set active
+      if ( (currentStatus.tpsDOT > configPage2.predictedMAPtresh) && (!currentStatus.MAPpredictActive) ) 
+      {
+        currentStatus.MAPpredictActive = 1; //Set MAP predict active
+        MAPpredictStart = runSecsX10;          //Set start time for tapering
+      }
+      
+      //If MAP predict is active, taper the predicted value down to measured value
+      //unless the measured value is greater, in which case it is used as is
+      long predictedValue; //currentStatus.MAP is also long
+      if (currentStatus.MAPpredictActive)
+      {
+          //Check if taper time is elapsed and if so, reset map predict
+          if ( (unsigned long) (runSecsX10 - MAPpredictStart) > configPage2.predictedMAPtaper)
+          {
+            currentStatus.MAPpredictActive = 0;
+            return;
+          }
+
+          //Predicted MAP values are stored in precision of 2 units, to allow max 511 kPa values with a byte
+          predictedValue = 2 * get3DTableValue(&predictedMapTable, currentStatus.TPS, currentStatus.RPM); //Perform lookup into predicted MAP value map for RPM vs TPS value
+          predictedValue = map((runSecsX10 - MAPpredictStart), 0, configPage2.predictedMAPtaper, predictedValue, currentStatus.MAP);
+          
+          //Finally sanity checks before modifying the measured value
+          if ( (predictedValue > currentStatus.MAP) && (predictedValue > 0) && (predictedValue <= 511))
+          {
+            currentStatus.MAP = predictedValue;
+          }   
+      }
+
+
 }
 
 //******************************** IGNITION ADVANCE CORRECTIONS ********************************

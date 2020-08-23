@@ -622,7 +622,6 @@ byte correctionAFRClosedLoop()
   return AFRValue; //Catch all (Includes when AFR target = current AFR
 }
 
-
 //******************************** IGNITION ADVANCE CORRECTIONS ********************************
 
 int8_t correctionsIgn(int8_t base_advance)

@@ -802,7 +802,6 @@ void sendValuesLegacy()
   bytestosend -= Serial.write(temp>>8);
   bytestosend -= Serial.write(temp);
   bytestosend -= Serial.write(currentStatus.MAPpredictActive);
-  
   for(int i = 0; i < bytestosend; i++)
   {
     // send dummy data to fill remote's buffer
@@ -991,7 +990,6 @@ void receiveValue(uint16_t valueOffset, byte newValue)
       trim3Table.cacheIsValid = false; //Invalid the tables cache to ensure a lookup of new values
       trim4Table.cacheIsValid = false; //Invalid the tables cache to ensure a lookup of new values
       break;
-
 
     case canbusPage:
       pnt_configPage = &configPage9;

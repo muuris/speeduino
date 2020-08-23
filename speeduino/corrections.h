@@ -46,5 +46,4 @@ extern int16_t knockWindowMax;//The current maximum crank angle for a knock puls
 extern uint16_t aseTaperStart;
 extern uint16_t dfcoStart;
 
-
 #endif // CORRECTIONS_H

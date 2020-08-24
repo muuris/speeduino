@@ -378,7 +378,7 @@ extern struct table2D knockWindowStartTable;
 extern struct table2D knockWindowDurationTable;
 extern struct table2D oilPressureProtectTable;
 extern struct table2D wmiAdvTable; //6 bin wmi correction table for timing advance (2D)
-extern struct table3D predictedMapTable; //6x6 Predicted MAP (for AE) map
+extern struct table3D predictedMapTable; //6x6 Predicted MAP table
 
 //These are for the direct port manipulation of the injectors, coils and aux outputs
 extern volatile PORT_TYPE *inj1_pin_port;

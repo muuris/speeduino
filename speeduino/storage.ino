@@ -512,6 +512,9 @@ void writeConfig(byte tableNum)
       break;
 
   case predictedMapPage:
+      /*---------------------------------------------------
+      | Predicted MAP table -- page 15
+      -----------------------------------------------------*/
       if(EEPROM.read(EEPROM_CONFIG15_XSIZE) != predictedMapTable.xSize) { EEPROM.write(EEPROM_CONFIG15_XSIZE,predictedMapTable.xSize); writeCounter++; } //Write the predicted MAP Table RPM dimension size
       if(EEPROM.read(EEPROM_CONFIG15_YSIZE) != predictedMapTable.ySize) { EEPROM.write(EEPROM_CONFIG15_YSIZE,predictedMapTable.ySize); writeCounter++; } //Write the predicted MAP Table TPS dimension size
       for(int x=EEPROM_CONFIG15_MAP; x<EEPROM_CONFIG15_XBINS; x++)

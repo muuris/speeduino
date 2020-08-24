@@ -206,7 +206,7 @@ uint32_t calculateCRC32(byte pageNo)
       break;
 
     case predictedMapPage:
-      //Confirmed working
+      //not yet confirmed working
       raw_value = getPageValue(predictedMapPage, 0);
       CRC32_val = CRC32.crc32(&raw_value, 1, false);
       for(uint16_t x=1; x< npage_size[predictedMapPage]; x++)

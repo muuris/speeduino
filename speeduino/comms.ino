@@ -801,7 +801,7 @@ void sendValuesLegacy()
   temp = currentStatus.advance2 * 10;
   bytestosend -= Serial.write(temp>>8);
   bytestosend -= Serial.write(temp);
-  bytestosend -= Serial.write(currentStatus.MAPpredictActive);
+  bytestosend -= Serial.write(currentStatus.MAPpredictActive); //Only one bit used currently
   for(int i = 0; i < bytestosend; i++)
   {
     // send dummy data to fill remote's buffer
@@ -1059,17 +1059,6 @@ void receiveValue(uint16_t valueOffset, byte newValue)
         *((byte *)pnt_configPage + (byte)valueOffset) = newValue;
       }
       break;
-
-    case predictedMapPage:
-      //Predicted MAP table
-      if (valueOffset < 36) { predictedMapTable.values[5 - (valueOffset / 6)][valueOffset % 6] = newValue; }
-      else if (valueOffset < 42) { predictedMapTable.axisX[(valueOffset - 36)] = int(newValue) * TABLE_RPM_MULTIPLIER; } //New value is on the X (RPM) axis of the trim1 table. The RPM values sent by TunerStudio are divided by 100, need to multiply it back by 100 to make it correct (TABLE_RPM_MULTIPLIER)
-      else if (valueOffset < 48) { predictedMapTable.axisY[(5 - (valueOffset - 42))] = int(newValue) * TABLE_LOAD_MULTIPLIER; } //New value is on the Y (TPS) axis of the table
-      predictedMapTable.cacheIsValid = false; //Invalid the tables cache to ensure a lookup of new values
-      break;
-
-    default:
-      break;
     
     case ignMap2Page: //Ignition settings page (Page 2)
       if (valueOffset < 256) //New value is part of the ignition map
@@ -1093,6 +1082,18 @@ void receiveValue(uint16_t valueOffset, byte newValue)
       }
       ignitionTable2.cacheIsValid = false; //Invalid the tables cache to ensure a lookup of new values
       break;
+
+    case predictedMapPage:
+      //Predicted MAP table
+      if (valueOffset < 36) { predictedMapTable.values[5 - (valueOffset / 6)][valueOffset % 6] = newValue; }
+      else if (valueOffset < 42) { predictedMapTable.axisX[(valueOffset - 36)] = int(newValue) * TABLE_RPM_MULTIPLIER; } //New value is on the X (RPM) axis of the trim1 table. The RPM values sent by TunerStudio are divided by 100, need to multiply it back by 100 to make it correct (TABLE_RPM_MULTIPLIER)
+      else if (valueOffset < 48) { predictedMapTable.axisY[(5 - (valueOffset - 42))] = int(newValue) * TABLE_LOAD_MULTIPLIER; } //New value is on the Y (TPS) axis of the table
+      predictedMapTable.cacheIsValid = false; //Invalid the tables cache to ensure a lookup of new values
+      break;
+
+    default:
+      break;
+
   }
   //if(Serial.available() > 16) { command(); }
 }
@@ -1217,14 +1218,7 @@ void sendPage()
       break;
 
     case predictedMapPage:
-      //Predicted MAP page
       currentTable = predictedMapTable;
-      //byte response[48]; //Bit hacky, but the size is: 6x6 + 6 + 6 = 48
-      //for (int x = 0; x < 36; x++) { response[x] = predictedMapTable.values[5 - (x / 6)][x % 6]; }
-      //for (int x = 36; x < 42; x++) { response[x] = byte(predictedMapTable.axisX[(x - 36)] / TABLE_RPM_MULTIPLIER); }
-      //for (int y = 42; y < 48; y++) { response[y] = byte(predictedMapTable.axisY[5 - (y - 42)] / TABLE_LOAD_MULTIPLIER); }
-      //Serial.write((byte *)&response, sizeof(response));
-      //sendComplete = true;
       break;
 
     default:
@@ -1528,7 +1522,7 @@ void sendPageASCII()
       break;
 
     case predictedMapPage:
-      currentTitleIndex = 167;// the index to the first char of the third string in pageTitles
+      currentTitleIndex = 167;// the index to the first char of the string in pageTitles
       currentTable = predictedMapTable;
       break;
 

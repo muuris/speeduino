@@ -249,6 +249,9 @@
 #define AE_MODE_MULTIPLIER  0
 #define AE_MODE_ADDER       1
 
+#define WARMUP_MODE_GAMMAE     0
+#define WARMUP_MODE_AFR_TARGET 1
+
 #define KNOCK_MODE_OFF      0
 #define KNOCK_MODE_DIGITAL  1
 #define KNOCK_MODE_ANALOG   2
@@ -353,11 +356,10 @@ extern struct table3D trim1Table; //6x6 Fuel trim 1 map
 extern struct table3D trim2Table; //6x6 Fuel trim 2 map
 extern struct table3D trim3Table; //6x6 Fuel trim 3 map
 extern struct table3D trim4Table; //6x6 Fuel trim 4 map
+extern struct table3D wueTable;   //8x8 WUE 3D table
+extern struct table3D aseTable;   //6x6 ASE 3D table
 extern struct table2D taeTable; //4 bin TPS Acceleration Enrichment map (2D)
 extern struct table2D maeTable;
-extern struct table2D WUETable; //10 bin Warm Up Enrichment map (2D)
-extern struct table2D ASETable; //4 bin After Start Enrichment map (2D)
-extern struct table2D ASECountTable; //4 bin After Start duration map (2D)
 extern struct table2D PrimingPulseTable; //4 bin Priming pulsewidth map (2D)
 extern struct table2D crankingEnrichTable; //4 bin cranking Enrichment map (2D)
 extern struct table2D dwellVCorrectionTable; //6 bin dwell voltage correction (2D)
@@ -626,7 +628,7 @@ struct statuses {
  */
 struct config2 {
 
-  byte aseTaperTime;
+  byte unused1_0; //Was aseTaperTime
   byte aeColdPct;  //AE cold clt modifier %
   byte aeColdTaperMin; //AE cold modifier, taper start temp (full modifier), was ASE in early versions
   byte aeMode : 2; /**< Acceleration Enrichment mode. 0 = TPS, 1 = MAP. Values 2 and 3 reserved for potential future use (ie blended TPS / MAP) */
@@ -635,7 +637,7 @@ struct config2 {
   byte unused1_3c : 1;
   byte aeApplyMode : 1; //0 = Multiply | 1 = Add
   byte multiplyMAP : 2; //0 = off | 1 = baro | 2 = 100
-  byte wueValues[10]; //Warm up enrichment array (10 bytes)
+  byte unused1_4[10]; //Was wueValues[10]
   byte crankingPct; //Cranking enrichment
   byte pinMapping; // The board / ping mapping to be used
   byte tachoPin : 6; //Custom pin setting for tacho output
@@ -725,7 +727,9 @@ struct config2 {
 
   byte fanWhenOff : 1;      // Only run fan when engine is running
   byte fanWhenCranking : 1;      //**< Setting whether the fan output will stay on when the engine is cranking */ 
-  byte fanUnused : 5;
+  byte fanUnused : 3;
+  byte WUEmode : 1; // Apply WUE% on gammaE or on AFR target (latter for incorporate AFR only)
+  byte ASEmode : 1; // Apply ASE% on gammaE or on AFR target (latter for incorporate AFR only)
   byte incorporateAFR : 1;  //Incorporate AFR
   byte asePct[4];  //Afterstart enrichment (%)
   byte aseCount[4]; //Afterstart enrichment cycles. This is the number of ignition cycles that the afterstart enrichment % lasts for
@@ -817,7 +821,7 @@ struct config4 {
   byte HardRevLim; //Hard rev limit (RPM/100)
   byte taeBins[4]; //TPS based acceleration enrichment bins (%/s)
   byte taeValues[4]; //TPS based acceleration enrichment rates (% to add)
-  byte wueBins[10]; //Warmup Enrichment bins (Values are in configTable1)
+  byte unused4_31[10]; //Was wueBins[10]
   byte dwellLimit;
   byte dwellCorrectionValues[6]; //Correction table for dwell vs battery voltage
   byte iatRetBins[6]; // Inlet Air Temp timing retard curve bins

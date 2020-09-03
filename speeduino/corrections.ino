@@ -164,10 +164,10 @@ Uses a 2D enrichment table (WUETable) where the X axis is engine temp and the Y 
 */
 byte correctionWUE()
 {
-  byte WUEValue;
+  byte WUEValue = 100;
   //Possibly reduce the frequency this runs at (Costs about 50 loops per second)
   //if (currentStatus.coolant > (WUETable.axisX[9] - CALIBRATION_TEMPERATURE_OFFSET))
-  if (currentStatus.coolant > (table2D_getAxisValue(&WUETable, 9) - CALIBRATION_TEMPERATURE_OFFSET))
+/*  if (currentStatus.coolant > (table2D_getAxisValue(&WUETable, 9) - CALIBRATION_TEMPERATURE_OFFSET))
   {
     //This prevents us doing the 2D lookup if we're already up to temp
     BIT_CLEAR(currentStatus.engine, BIT_ENGINE_WARMUP);
@@ -178,7 +178,7 @@ byte correctionWUE()
     BIT_SET(currentStatus.engine, BIT_ENGINE_WARMUP);
     WUEValue = table2D_getValue(&WUETable, currentStatus.coolant + CALIBRATION_TEMPERATURE_OFFSET);
   }
-
+*/
   return WUEValue;
 }
 
@@ -219,7 +219,9 @@ uint16_t correctionCranking()
  */
 byte correctionASE()
 {
-  int16_t ASEValue;
+  int16_t ASEValue = 0;
+  //ASE is looked from 3D table (CLT/time), so no tapering is needed
+  /*
   //Two checks are requiredL:
   //1) Is the engine run time less than the configured ase time
   //2) Make sure we're not still cranking
@@ -251,6 +253,7 @@ byte correctionASE()
     if(ASEValue < 0) { ASEValue = 0; }
     currentStatus.ASEValue = (byte)ASEValue;
   }
+  */
   return currentStatus.ASEValue;
 }
 

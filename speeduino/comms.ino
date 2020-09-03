@@ -433,13 +433,6 @@ void command()
         Serial.print(", ");
         Serial.println(o2Calibration_values[x]);
       }
-      Serial.println(F("WUE"));
-      for (int x = 0; x < 10; x++)
-      {
-        Serial.print(configPage4.wueBins[x]);
-        Serial.print(F(", "));
-        Serial.println(configPage2.wueValues[x]);
-      }
       Serial.flush();
     #endif
       break;
@@ -1273,14 +1266,14 @@ void sendPageASCII()
       Serial.println((const __FlashStringHelper *)&pageTitles[27]);//27 is the index to the first char in the second sting in pageTitles
       // The following loop displays in human readable form of all byte values in config page 1 up to but not including the first array.
       // incrementing void pointers is cumbersome. Thus we have "pnt_configPage = (byte *)pnt_configPage + 1"
-      for (pnt_configPage = (byte *)&configPage2; pnt_configPage < &configPage2.wueValues[0]; pnt_configPage = (byte *)pnt_configPage + 1) { Serial.println(*((byte *)pnt_configPage)); }
+      for (pnt_configPage = (byte *)&configPage2; pnt_configPage < &configPage2.unused1_4[0]; pnt_configPage = (byte *)pnt_configPage + 1) { Serial.println(*((byte *)pnt_configPage)); }
       for (byte x = 10; x; x--)// The x between the ';' has the same representation as the "x != 0" test or comparision
       {
-        Serial.print(configPage2.wueValues[10 - x]);// This displays the values horizantially on the screen
+        Serial.print(configPage2.unused1_4[10 - x]);// This displays the values horizantially on the screen
         Serial.print(F(" "));
       }
       Serial.println();
-      for (pnt_configPage = (byte *)&configPage2.wueValues[9] + 1; pnt_configPage < &configPage2.injAng; pnt_configPage = (byte *)pnt_configPage + 1) {
+      for (pnt_configPage = (byte *)&configPage2.unused1_4[9] + 1; pnt_configPage < &configPage2.injAng; pnt_configPage = (byte *)pnt_configPage + 1) {
         Serial.println(*((byte *)pnt_configPage));// This displays all the byte values between the last array up to but not including the first unsigned int on config page 1
       }
       // The following loop displays four unsigned ints
@@ -1324,7 +1317,7 @@ void sendPageASCII()
       }
       for (byte x = 10; x ; x--)
       {
-        Serial.print(configPage4.wueBins[10 - x]);//Displaying array horizontally across screen
+        Serial.print(configPage4.unused4_31[10 - x]);//Displaying array horizontally across screen
         Serial.print(' ');
       }
       Serial.println();

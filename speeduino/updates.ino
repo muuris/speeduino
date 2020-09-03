@@ -181,20 +181,20 @@ void doUpdates()
 
     //Also added is coolant based ASE for both duration and amount
     //All the adder amounts are set to what the single value was previously
-    configPage2.asePct[0] = configPage2.aeColdTaperMin;
-    configPage2.asePct[1] = configPage2.aeColdTaperMin;
-    configPage2.asePct[2] = configPage2.aeColdTaperMin;
-    configPage2.asePct[3] = configPage2.aeColdTaperMin;
+    configPage2.unused1_71[0] = configPage2.aeColdTaperMin;
+    configPage2.unused1_71[1] = configPage2.aeColdTaperMin;
+    configPage2.unused1_71[2] = configPage2.aeColdTaperMin;
+    configPage2.unused1_71[3] = configPage2.aeColdTaperMin;
     //ASE duration is set to 10s for all coolant values
-    configPage2.aseCount[0] = 10;
-    configPage2.aseCount[1] = 10;
-    configPage2.aseCount[2] = 10;
-    configPage2.aseCount[3] = 10;
+    configPage2.unused1_75[0] = 10;
+    configPage2.unused1_75[1] = 10;
+    configPage2.unused1_75[2] = 10;
+    configPage2.unused1_75[3] = 10;
     //Finally the coolant bins for the above are set to sane values (Rememerbing these are offset values)
-    configPage2.aseBins[0] = 0;
-    configPage2.aseBins[1] = 20;
-    configPage2.aseBins[2] = 60;
-    configPage2.aseBins[3] = 80;
+    configPage2.unused1_79[0] = 0;
+    configPage2.unused1_79[1] = 20;
+    configPage2.unused1_79[2] = 60;
+    configPage2.unused1_79[3] = 80;
 
     //Coolant based ignition advance was added also. Set sane values
     configPage4.cltAdvBins[0] = 0;
@@ -354,7 +354,7 @@ void doUpdates()
     configPage10.crankingEnrichTaper = 1;
     
     //ASE to run taper added. Default it to 0,1 secs
-    configPage2.aseTaperTime = 1;
+    configPage2.unused1_0 = 1;
 
     // there is now optioon for fixed and relative timing retard for soft limit. This sets the soft limiter to the old fixed timing mode.
     configPage2.SoftLimitMode = SOFT_LIMIT_FIXED;
@@ -429,6 +429,12 @@ void doUpdates()
 
   if(EEPROM.read(EEPROM_DATA_VERSION) == 15)
   {
+
+    //WUE converted from 2D to 3D map. Make a flat conversion of values.
+    //muuris todo
+    
+    //ASE converted from 2D to 3D map. Make a flat conversion of values.
+    //muuris todo
 
     writeAllConfig();
     //EEPROM.write(EEPROM_DATA_VERSION, 16);

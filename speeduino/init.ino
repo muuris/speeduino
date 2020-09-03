@@ -37,6 +37,8 @@ void initialiseAll()
     table3D_setSize(&trim2Table, 6);
     table3D_setSize(&trim3Table, 6);
     table3D_setSize(&trim4Table, 6);
+    table3D_setSize(&wueTable, 8);
+    table3D_setSize(&aseTable, 6);
 
     #if defined(CORE_STM32)
     configPage9.intcan_available = 1;   // device has internal canbus
@@ -72,21 +74,6 @@ void initialiseAll()
     maeTable.xSize = 4;
     maeTable.values = configPage4.maeRates;
     maeTable.axisX = configPage4.maeBins;
-    WUETable.valueSize = SIZE_BYTE; //Set this table to use byte values
-    WUETable.axisSize = SIZE_BYTE; //Set this table to use byte axis bins
-    WUETable.xSize = 10;
-    WUETable.values = configPage2.wueValues;
-    WUETable.axisX = configPage4.wueBins;
-    ASETable.valueSize = SIZE_BYTE;
-    ASETable.axisSize = SIZE_BYTE; //Set this table to use byte axis bins
-    ASETable.xSize = 4;
-    ASETable.values = configPage2.asePct;
-    ASETable.axisX = configPage2.aseBins;
-    ASECountTable.valueSize = SIZE_BYTE;
-    ASECountTable.axisSize = SIZE_BYTE; //Set this table to use byte axis bins
-    ASECountTable.xSize = 4;
-    ASECountTable.values = configPage2.aseCount;
-    ASECountTable.axisX = configPage2.aseBins;
     PrimingPulseTable.valueSize = SIZE_BYTE;
     PrimingPulseTable.axisSize = SIZE_BYTE; //Set this table to use byte axis bins
     PrimingPulseTable.xSize = 4;

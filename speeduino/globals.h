@@ -727,13 +727,11 @@ struct config2 {
 
   byte fanWhenOff : 1;      // Only run fan when engine is running
   byte fanWhenCranking : 1;      //**< Setting whether the fan output will stay on when the engine is cranking */ 
-  byte fanUnused : 3;
-  byte WUEmode : 1; // Apply WUE% on gammaE or on AFR target (latter for incorporate AFR only)
-  byte ASEmode : 1; // Apply ASE% on gammaE or on AFR target (latter for incorporate AFR only)
+  byte fanUnused : 5;
   byte incorporateAFR : 1;  //Incorporate AFR
-  byte asePct[4];  //Afterstart enrichment (%)
-  byte aseCount[4]; //Afterstart enrichment cycles. This is the number of ignition cycles that the afterstart enrichment % lasts for
-  byte aseBins[4]; //Afterstart enrichment temp axis
+  byte unused1_71[4];  //was asePct[4]
+  byte unused1_75[4];  //was aseCount[4]
+  byte unused1_79[4];  //was aseBins[4]
   byte primePulse[4]; //Priming pulsewidth
   byte primeBins[4]; //Priming temp axis
 

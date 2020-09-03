@@ -568,7 +568,7 @@ struct statuses {
   unsigned int PW6; //In uS
   unsigned int PW7; //In uS
   unsigned int PW8; //In uS
-  volatile byte runSecs; /**< Counter of seconds since cranking commenced (Maxes out at 255 to prevent overflow) */
+  volatile uint16_t runSecs; /**< Counter of seconds since cranking commenced (Maxes out at 65535 to prevent overflow) */
   volatile byte secl; /**< Counter incrementing once per second. Will overflow after 255 and begin again. This is used by TunerStudio to maintain comms sync */
   volatile uint32_t loopsPerSecond; /**< A performance indicator showing the number of main loops that are being executed each second */ 
   bool launchingSoft; /**< Indicator showing whether soft launch control adjustments are active */

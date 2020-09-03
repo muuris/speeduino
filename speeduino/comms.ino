@@ -630,6 +630,8 @@ void updateFullStatus()
   fullStatus[113] = currentStatus.fuelTempCorrection; //Fuel temperature Correction (%)
   fullStatus[114] = currentStatus.advance1; //advance 1 (%)
   fullStatus[115] = currentStatus.advance2; //advance 2 (%)
+  fullStatus[116] = lowByte(currentStatus.runSecs);
+  fullStatus[117] = highByte(currentStatus.runSecs);
 }
 /*
 This function returns the current values of a fixed group of variables
